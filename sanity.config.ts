@@ -1,5 +1,5 @@
 import { defineConfig } from 'sanity'
-import { tailwindColorField } from './plugins/sanity-plugin-tailwind-color-picker/src'
+import { tailwindColorField } from './src'
 
 export default defineConfig({
   // ...

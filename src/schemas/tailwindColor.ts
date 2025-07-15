@@ -1,11 +1,14 @@
 // ./schemas/tailwindColor.ts
 import { HexToTailwindColorPicker } from '../components/HexToTailwindColorPicker'
+import TailwindColorInput from '../components/TailwindColorInput'
+
+
 
 export default {
-  name: 'tailwindColor',
+  name: 'backgroundColor',
   type: 'string',
   title: 'Couleur avec Tailwind CSS',
   components: {
-    input: HexToTailwindColorPicker,
+    input: TailwindColorInput,
   },
 }
