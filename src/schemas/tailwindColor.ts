@@ -1,5 +1,5 @@
 // ./schemas/tailwindColor.ts
-import { HexToTailwindColorPicker } from './components/HexToTailwindColorPicker'
+import { HexToTailwindColorPicker } from '../components/HexToTailwindColorPicker'
 
 export default {
   name: 'tailwindColor',

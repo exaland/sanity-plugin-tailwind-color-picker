@@ -252,7 +252,6 @@ const tailwindColors: Record<string, string> = {
   '#a21caf': 'purple-500',
   '#9333ea': 'purple-600',
   '#7e22ce': 'purple-700',
-  '#6d28d9': 'purple-800',
   '#581c87': 'purple-900',
   '#3b0764': 'purple-950',
 
@@ -264,7 +263,6 @@ const tailwindColors: Record<string, string> = {
   '#e879f9': 'fuchsia-400',
   '#d946ef': 'fuchsia-500',
   '#c026d3': 'fuchsia-600',
-  '#a21caf': 'fuchsia-700',
   '#86198f': 'fuchsia-800',
   '#701a75': 'fuchsia-900',
   '#4a044e': 'fuchsia-950',
@@ -296,12 +294,39 @@ const tailwindColors: Record<string, string> = {
   '#4c0519': 'rose-950',
 }
 
-function getTailwindColorClass(hex: string): string {
-  const cleanedHex = hex.trim().toLowerCase()
-  const match = Object.entries(tailwindColors).find(
-    ([colorHex]) => colorHex.toLowerCase() === cleanedHex
+// Fonction pour convertir hex en RGB
+function hexToRgb(hex) {
+  const sanitizedHex = hex.replace('#', '')
+  const bigint = parseInt(sanitizedHex, 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  return { r, g, b }
+}
+
+// Calculer la distance Euclidienne entre deux couleurs RGB
+function colorDistance(c1, c2) {
+  return Math.sqrt(
+    Math.pow(c1.r - c2.r, 2) +
+    Math.pow(c1.g - c2.g, 2) +
+    Math.pow(c1.b - c2.b, 2)
   )
-  return match ? `bg-${match[1]}` : 'non reconnu'
+}
+
+// Trouver la classe Tailwind la plus proche
+function findClosestTailwindClass(hex) {
+  const rgbColor = hexToRgb(hex)
+  let minDistance = Infinity
+  let closestClass = ''
+  for (const [hexCode, className] of Object.entries(tailwindColors)) {
+    const rgb = hexToRgb(hexCode)
+    const dist = colorDistance(rgbColor, rgb)
+    if (dist < minDistance) {
+      minDistance = dist
+      closestClass = className
+    }
+  }
+  return closestClass
 }
 
 export function HexToTailwindColorPicker(props) {
@@ -310,8 +335,8 @@ export function HexToTailwindColorPicker(props) {
 
   useEffect(() => {
     if (value && value.hex) {
-      const twClass = getTailwindColorClass(value.hex)
-      setTailwindClass(twClass)
+      const closestClass = findClosestTailwindClass(value.hex)
+      setTailwindClass(closestClass)
     } else {
       setTailwindClass('')
     }
@@ -339,12 +364,12 @@ export function HexToTailwindColorPicker(props) {
           HEX sélectionné : <strong>{value?.hex || 'Aucun'}</strong>
         </Text>
         <Text>
-          Classe Tailwind CSS :{' '}
+          Classe Tailwind la plus proche :{' '}
           <strong style={{ fontFamily: 'monospace' }}>{tailwindClass}</strong>
         </Text>
       </Box>
 
-      {tailwindClass !== 'non reconnu' && value?.hex && (
+      {value?.hex && (
         <Card
           padding={2}
           radius={2}

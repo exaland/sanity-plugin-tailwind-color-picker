@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-tailwind-color-picker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Color Picker Sanity v3 avec conversion en classe Tailwind CSS",
   "main": "src/index.ts",
   "keywords": [
