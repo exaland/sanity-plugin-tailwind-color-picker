@@ -1,0 +1,25 @@
+{
+  "name": "sanity-plugin-tailwind-color-picker",
+  "version": "1.0.0",
+  "description": "Color Picker Sanity v3 avec conversion en classe Tailwind CSS",
+  "main": "src/index.ts",
+  "keywords": [
+    "sanity",
+    "tailwind",
+    "color",
+    "plugin"
+  ],
+  "author": "Alexandre MAGNIER - Exaland Concept <exaland@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "react-color": "^2.19.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "sanity": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/react-color": "^3.0.13"
+  }
+}
