@@ -289,12 +289,26 @@ export const tailwindColors: Record<string, string> = {
   '#881337': 'rose-900',
   '#4c0519': 'rose-950',
 }
+
+// Génère un mapping HEX -> bg-TailwindClass sans doublons
+export const bgTailwindColors: Record<string, string> = Object.fromEntries(
+  Object.entries(tailwindColors)
+    .filter(([hex, className]) => !className.startsWith('bg-')) // évite déjà préfixés
+    .reduce((acc, [hex, className]) => {
+      const bgClass = `bg-${className}`
+      // Évite les doublons de HEX (ex: '#fafafa' pour zinc-50 et neutral-50)
+      if (!acc.some(([h]) => h === hex)) {
+        acc.push([hex, bgClass])
+      }
+      return acc
+    }, [] as [string, string][])
+)
 // Trouver la classe Tailwind la plus proche
 export function findClosestTailwindClass(hex) {
   const rgbColor = hexToRgb(hex)
   let minDistance = Infinity
   let closestClass = ''
-  for (const [hexCode, className] of Object.entries(tailwindColors)) {
+  for (const [hexCode, className] of Object.entries(bgTailwindColors)) {
     const rgb = hexToRgb(hexCode)
     const dist = colorDistance(rgbColor, rgb)
     if (dist < minDistance) {
@@ -323,8 +337,15 @@ export function hexToRgb(hex: string) {
   }
 }
 
-export function tailwindClassToHex(twClass) {
+export function tailwindClassToHex(twClass: string) {
   if (!twClass?.startsWith('bg-')) return '#ffffff'
-  const key = twClass.replace('bg-', '')
-  return tailwindColors[key] || '#ffffff'
+
+  // On parcourt bgTailwindColors (HEX -> bg-class)
+  for (const [hex, className] of Object.entries(bgTailwindColors)) {
+    if (className === twClass) {
+      return hex
+    }
+  }
+
+  return '#ffffff' // fallback
 }
