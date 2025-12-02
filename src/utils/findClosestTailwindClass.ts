@@ -45,8 +45,8 @@ export const tailwindColors: Record<string, string> = {
   '#09090b': 'zinc-950',
 
   // Neutral
-  '#fafafa': 'neutral-50',
-  '#f5f5f5': 'neutral-100',
+  '#f5f5f5': 'neutral-50',
+  '#f0f0f0': 'neutral-100',
   '#e5e5e5': 'neutral-200',
   '#d4d4d4': 'neutral-300',
   '#a3a3a3': 'neutral-400',
@@ -248,6 +248,7 @@ export const tailwindColors: Record<string, string> = {
   '#a21caf': 'purple-500',
   '#9333ea': 'purple-600',
   '#7e22ce': 'purple-700',
+  '#6b21a8': 'purple-800',
   '#581c87': 'purple-900',
   '#3b0764': 'purple-950',
 
@@ -259,11 +260,10 @@ export const tailwindColors: Record<string, string> = {
   '#e879f9': 'fuchsia-400',
   '#d946ef': 'fuchsia-500',
   '#c026d3': 'fuchsia-600',
+  '#b71db4': 'fuchsia-700',
   '#86198f': 'fuchsia-800',
   '#701a75': 'fuchsia-900',
   '#4a044e': 'fuchsia-950',
-
-  // Pink
   '#fdf2f8': 'pink-50',
   '#fce7f3': 'pink-100',
   '#fbcfe8': 'pink-200',
@@ -290,6 +290,29 @@ export const tailwindColors: Record<string, string> = {
   '#4c0519': 'rose-950',
 }
 
+// Définit les couleurs valides dans Tailwind CSS
+// Les combinaisons invalides (comme bg-violet-800) sont triées par rapport aux valides
+const validTailwindShades = [
+  '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'
+]
+
+const validTailwindColors = [
+  'slate', 'gray', 'zinc', 'neutral', 'stone',
+  'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan',
+  'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'
+]
+
+// Fonction pour vérifier si une classe Tailwind est valide
+export function isValidTailwindClass(className: string): boolean {
+  if (className === 'black' || className === 'white') return true
+  
+  const match = className.match(/^([\w-]+)-(\d+)$/)
+  if (!match) return false
+  
+  const [, colorName, shade] = match
+  return validTailwindColors.includes(colorName) && validTailwindShades.includes(shade)
+}
+
 // Génère un mapping HEX -> bg-TailwindClass sans doublons
 export const bgTailwindColors: Record<string, string> = Object.fromEntries(
   Object.entries(tailwindColors)
@@ -304,10 +327,11 @@ export const bgTailwindColors: Record<string, string> = Object.fromEntries(
     }, [] as [string, string][])
 )
 // Trouver la classe Tailwind la plus proche
-export function findClosestTailwindClass(hex) {
+export function findClosestTailwindClass(hex: string): string {
   const rgbColor = hexToRgb(hex)
   let minDistance = Infinity
   let closestClass = ''
+  
   for (const [hexCode, className] of Object.entries(bgTailwindColors)) {
     const rgb = hexToRgb(hexCode)
     const dist = colorDistance(rgbColor, rgb)
@@ -316,10 +340,40 @@ export function findClosestTailwindClass(hex) {
       closestClass = className
     }
   }
+  
   return closestClass
 }
 
-function colorDistance(c1, c2) {
+// Trouver les N classes Tailwind les plus proches (valides ou non)
+export function findClosestTailwindClassesWithValidity(hex: string, count: number = 5) {
+  const rgbColor = hexToRgb(hex)
+  const distances: Array<{ hex: string; className: string; distance: number; isValid: boolean }> = []
+  
+  for (const [hexCode, className] of Object.entries(bgTailwindColors)) {
+    const rgb = hexToRgb(hexCode)
+    const dist = colorDistance(rgbColor, rgb)
+    const isValid = isValidTailwindClass(className.replace('bg-', ''))
+    
+    distances.push({
+      hex: hexCode,
+      className,
+      distance: dist,
+      isValid
+    })
+  }
+  
+  // Trier d'abord par validité (valides d'abord), puis par distance
+  distances.sort((a, b) => {
+    if (a.isValid !== b.isValid) {
+      return a.isValid ? -1 : 1
+    }
+    return a.distance - b.distance
+  })
+  
+  return distances.slice(0, count)
+}
+
+function colorDistance(c1: any, c2: any): number {
   return Math.sqrt(
     Math.pow(c1.r - c2.r, 2) +
     Math.pow(c1.g - c2.g, 2) +

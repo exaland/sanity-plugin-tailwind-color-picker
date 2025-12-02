@@ -48,6 +48,30 @@ Utilise le type `tailwindColor` dans tes types de documents :
 {
   name: 'backgroundColor',
   title: 'Couleur de fond (Tailwind)',
+  type: 'tailwindColor',
+}
+```
+
+## 🎯 Tri des couleurs non disponibles
+
+Le plugin trie automatiquement les suggestions de couleurs Tailwind en **priorisant les couleurs valides** (disponibles dans Tailwind CSS) par rapport aux couleurs non disponibles.
+
+### Comportement :
+
+1. **Couleurs valides d'abord** : Les classes comme `bg-blue-500`, `bg-violet-800` sont prioritaires si elles correspondent à Tailwind CSS officiel
+2. **Couleurs non disponibles après** : Si aucune couleur valide ne correspond, le plugin suggère les plus proches, même si elles n'existent pas dans Tailwind (`bg-violet-800` ne serait affichée que si violet-800 n'existe pas en tant que classe valide)
+3. **Indication visuelle** : Un badge ⚠️ indique les couleurs non disponibles
+
+### Exemple :
+
+```typescript
+// Couleur sélectionnée : #5b21b6 (violet-800)
+
+// Suggestions affichées (triées) :
+1. bg-violet-800         ✓ Valide   (distance: 0)
+2. bg-indigo-800         ✓ Valide   (distance: 142)
+3. bg-purple-800         ✓ Valide   (distance: 284)
+```
   type: 'tailwindColor', // 🟡 ce type est défini par le plugin
 }
 
