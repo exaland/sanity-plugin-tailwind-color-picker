@@ -1,31 +1,30 @@
 import React from 'react'
-import { Stack, Text, Box, Card } from '@sanity/ui'
-import { ChromePicker } from 'react-color'
-import { set, unset } from 'sanity'
-import { hexToRgb, findClosestTailwindClass, tailwindClassToHex } from '../utils/findClosestTailwindClass' // sépare tes utilitaires si besoin
+import {Stack, Text, Box, Card} from '@sanity/ui'
+import {ChromePicker, ColorResult} from 'react-color'
+import {set} from 'sanity'
+import {findClosestTailwindClass, tailwindClassToHex} from '../utils/findClosestTailwindClass'
 
-export default function TailwindColorInput(props) {
-  const { value, onChange } = props
-
-    const [hex, setHex] = React.useState(tailwindClassToHex(value))
-
-const handleColorChange = (color) => {
-  const hex = color.hex
-  console.log('Nouvelle couleur HEX sélectionnée:', hex)
-    setHex(hex)
-
-  const closest = findClosestTailwindClass(hex)
-  console.log('Classe Tailwind la plus proche:', closest)
-
-    setTimeout(() => {
-        onChange(set(closest)) // Envoie la classe Tailwind
-    }, 0)   
+type Props = {
+  value?: string
+  onChange: (patch: any) => void
 }
 
-const handleChangecolorComplete = (color) => {
+export default function TailwindColorInput(props: Props) {
+  const { value, onChange } = props
+
+  const [hex, setHex] = React.useState(tailwindClassToHex(value ?? ''))
+
+const handleColorChange = (color: ColorResult) => {
   const hex = color.hex
-  console.log('Nouvelle couleur HEX sélectionnée:', hex)
-  setHex(hex)   
+  setHex(hex)
+
+  const closest = findClosestTailwindClass(hex)
+  onChange(set(closest))
+}
+
+const handleChangecolorComplete = (color: ColorResult) => {
+  const hex = color.hex
+  setHex(hex)
 }
 
 
@@ -34,7 +33,7 @@ const handleChangecolorComplete = (color) => {
   return (
     <Stack space={3}>
         <ChromePicker
-            color={tailwindClassToHex(value)}
+          color={tailwindClassToHex(value ?? '')}
             onChange={handleColorChange}
             onChangeComplete={handleChangecolorComplete}
             disableAlpha
@@ -46,8 +45,6 @@ const handleChangecolorComplete = (color) => {
         </Text>
       </Box>
       {value && (
-        console.log('Prévisualisation de la couleur'),
-        console.log('Valeur actuelle:', value),
         <Card
           padding={3}
           radius={2}

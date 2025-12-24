@@ -331,7 +331,7 @@ export function findClosestTailwindClass(hex: string): string {
   const rgbColor = hexToRgb(hex)
   let minDistance = Infinity
   let closestClass = ''
-  
+
   for (const [hexCode, className] of Object.entries(bgTailwindColors)) {
     const rgb = hexToRgb(hexCode)
     const dist = colorDistance(rgbColor, rgb)
@@ -340,7 +340,7 @@ export function findClosestTailwindClass(hex: string): string {
       closestClass = className
     }
   }
-  
+
   return closestClass
 }
 
@@ -348,12 +348,12 @@ export function findClosestTailwindClass(hex: string): string {
 export function findClosestTailwindClassesWithValidity(hex: string, count: number = 5) {
   const rgbColor = hexToRgb(hex)
   const distances: Array<{ hex: string; className: string; distance: number; isValid: boolean }> = []
-  
+
   for (const [hexCode, className] of Object.entries(bgTailwindColors)) {
     const rgb = hexToRgb(hexCode)
     const dist = colorDistance(rgbColor, rgb)
     const isValid = isValidTailwindClass(className.replace('bg-', ''))
-    
+
     distances.push({
       hex: hexCode,
       className,
@@ -361,7 +361,7 @@ export function findClosestTailwindClassesWithValidity(hex: string, count: numbe
       isValid
     })
   }
-  
+
   // Trier d'abord par validité (valides d'abord), puis par distance
   distances.sort((a, b) => {
     if (a.isValid !== b.isValid) {
@@ -369,16 +369,57 @@ export function findClosestTailwindClassesWithValidity(hex: string, count: numbe
     }
     return a.distance - b.distance
   })
-  
+
   return distances.slice(0, count)
 }
 
+// Conversion sRGB -> OKLab pour distance perceptuelle
+function srgbToLinear(c: number): number {
+  c = c / 255
+  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+}
+
+function rgbToOklab({ r, g, b }: { r: number; g: number; b: number }) {
+  const lr = srgbToLinear(r)
+  const lg = srgbToLinear(g)
+  const lb = srgbToLinear(b)
+
+  // LMS transform
+  const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb
+  const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb
+  const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb
+
+  const l_ = Math.cbrt(l)
+  const m_ = Math.cbrt(m)
+  const s_ = Math.cbrt(s)
+
+  const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_
+  const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_
+  const b2 = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+
+  return { L, a, b: b2 }
+}
+
 function colorDistance(c1: any, c2: any): number {
+  const o1 = rgbToOklab(c1)
+  const o2 = rgbToOklab(c2)
   return Math.sqrt(
-    Math.pow(c1.r - c2.r, 2) +
-    Math.pow(c1.g - c2.g, 2) +
-    Math.pow(c1.b - c2.b, 2)
+    Math.pow(o1.L - o2.L, 2) +
+    Math.pow(o1.a - o2.a, 2) +
+    Math.pow(o1.b - o2.b, 2)
   )
+}
+
+// Parse une classe Tailwind 'bg-blue-500/60' -> {color:'blue', shade:'500', opacity:60}
+export function parseTailwindClass(twClass: string): { color?: string; shade?: string; opacity?: number } {
+  if (!twClass) return {}
+  const noBg = twClass.replace(/^bg-/, '')
+  const [base, opacityStr] = noBg.split('/')
+  const match = base.match(/^([a-z-]+)-(\d{2,3}|black|white)$/)
+  const opacity = opacityStr ? Math.max(0, Math.min(100, parseInt(opacityStr, 10))) : undefined
+  if (!match) return { opacity }
+  const [, colorName, shade] = match
+  return { color: colorName, shade, opacity }
 }
 
 export function hexToRgb(hex: string) {

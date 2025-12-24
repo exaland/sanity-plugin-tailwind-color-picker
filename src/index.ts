@@ -1,5 +1,5 @@
-// import { HexToTailwindColorPicker } from './components/HexToTailwindColorPicker'
-import TailwindColorInput  from './components/TailwindColorInput'
+import TailwindColorPicker from './components/TailwindColorPicker'
+import tailwindColorToken from './schemas/tailwindColorToken'
 import { definePlugin } from 'sanity'
 
 
@@ -8,7 +8,7 @@ export const tailwindColorField = {
   title: 'Couleur (Tailwind)',
   type: 'string',
   components: {
-    input: TailwindColorInput,
+    input: TailwindColorPicker,
   },
 }
 
@@ -16,7 +16,7 @@ export const tailwindColorField = {
 export const tailwindColorPlugin = definePlugin({
   name: 'sanity-plugin-tailwind-color-picker',
   schema: {
-    types: [tailwindColorField],
+    types: [tailwindColorField, tailwindColorToken],
   },
 })
 

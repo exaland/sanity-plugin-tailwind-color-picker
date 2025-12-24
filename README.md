@@ -1,126 +1,78 @@
-
 # sanity-plugin-tailwind-color-picker
 
-[](https://github.com/exaland/sanity-plugin-tailwind-color-picker#sanity-plugin-tailwind-color-picker)
-
-🎨 Plugin de sélection de couleur pour Sanity v3 qui convertit une couleur HEX en la classe Tailwind CSS la plus proche (`bg-blue-400`, etc.), facilitant ainsi la synchronisation avec votre design system Tailwind.
+🎨 Plugin Sanity v3 pour sélectionner une couleur et obtenir automatiquement la classe Tailwind CSS la plus proche (`bg-blue-500`, etc.). Ajoute suggestions triées par proximité, opacité (`/50`) et une prévisualisation.
 
 ## 🧑‍💻 Auteur
 
-[](https://github.com/exaland/sanity-plugin-tailwind-color-picker#-auteur)
+Alexandre MAGNIER — Exaland Concept
 
-Alexandre MAGNIER - Exaland Concept
-----------
-
-```md
-# sanity-plugin-tailwind-color-picker
-
-Un plugin Sanity pour sélectionner une couleur via un `ChromePicker` (comme dans Figma) et obtenir automatiquement la classe Tailwind CSS la plus proche (`bg-blue-500`, `bg-red-200`, etc).
-
-## 🚀 Installation
+## 🔌 Installation
 
 ```bash
 npm install sanity-plugin-tailwind-color-picker
-# ou
-yarn add sanity-plugin-tailwind-color-picker
-
 ```
 
-## 🔌 Utilisation
+## 🚀 Utilisation
 
-Ajoute le plugin dans ton fichier `sanity.config.ts` ou `sanity.config.js` :
+Ce plugin expose un type de champ prêt à l’emploi `tailwindColor` (type `string`). Il stocke la classe Tailwind complète, par ex. `bg-blue-500` ou `bg-blue-500/60`.
+
+### Dans votre `sanity.config.ts`
 
 ```ts
-import { tailwindColorPlugin } from 'sanity-plugin-tailwind-color-picker'
+import {defineConfig} from 'sanity'
+import tailwindColorPlugin from './plugins/sanity-plugin-tailwind-color-picker'
 
 export default defineConfig({
   // ...
-  plugins: [tailwindColorPlugin()],
+  plugins: [tailwindColorPlugin],
 })
-
 ```
 
-## 🧩 Définir un champ de couleur Tailwind dans ton schéma
-
-Utilise le type `tailwindColor` dans tes types de documents :
+### Dans un schéma
 
 ```ts
-{
+import {defineField} from 'sanity'
+
+export default defineField({
   name: 'backgroundColor',
-  title: 'Couleur de fond (Tailwind)',
+  title: 'Couleur de fond',
   type: 'tailwindColor',
-}
+})
 ```
 
-## 🎯 Tri des couleurs non disponibles
+### Type “token” (objet)
 
-Le plugin trie automatiquement les suggestions de couleurs Tailwind en **priorisant les couleurs valides** (disponibles dans Tailwind CSS) par rapport aux couleurs non disponibles.
+Ce plugin ajoute aussi `tailwindColorToken` (type `object`) qui stocke plusieurs attributs pour des requêtes plus flexibles.
 
-### Comportement :
+```ts
+import {defineField} from 'sanity'
 
-1. **Couleurs valides d'abord** : Les classes comme `bg-blue-500`, `bg-violet-800` sont prioritaires si elles correspondent à Tailwind CSS officiel
-2. **Couleurs non disponibles après** : Si aucune couleur valide ne correspond, le plugin suggère les plus proches, même si elles n'existent pas dans Tailwind (`bg-violet-800` ne serait affichée que si violet-800 n'existe pas en tant que classe valide)
-3. **Indication visuelle** : Un badge ⚠️ indique les couleurs non disponibles
-
-### Exemple :
-
-```typescript
-// Couleur sélectionnée : #5b21b6 (violet-800)
-
-// Suggestions affichées (triées) :
-1. bg-violet-800         ✓ Valide   (distance: 0)
-2. bg-indigo-800         ✓ Valide   (distance: 142)
-3. bg-purple-800         ✓ Valide   (distance: 284)
-```
-  type: 'tailwindColor', // 🟡 ce type est défini par le plugin
-}
-
+export default defineField({
+  name: 'backgroundColorToken',
+  title: 'Couleur de fond (Token)',
+  type: 'tailwindColorToken',
+})
 ```
 
-## ✨ Fonctionnement
+## ✨ Fonctionnalités
 
--   Tu sélectionnes une couleur avec un `ChromePicker`.
-    
--   Elle est automatiquement convertie en classe Tailwind proche (`bg-indigo-500`, `bg-gray-100`, etc).
-    
--   La valeur enregistrée dans Sanity est une `string` comme `bg-blue-500`.
-    
+- Suggestions triées par validité et distance couleur.
+- Opacité supportée via la syntaxe Tailwind `bg-xxx/NN` (0–100).
+- Prévisualisation immédiate et bouton “Copier la classe”.
+- Accessibilité basique (navigation clavier sur les suggestions).
 
-## 🧠 Personnalisation
+Algorithme de correspondance: distance perceptuelle OKLab pour des résultats plus naturels.
 
-Tu peux adapter le comportement :
+## ⚙️ Composants
 
--   Modifier la liste des couleurs Tailwind dans `findClosestTailwindClass.js`
-    
--   Afficher un `text` preview ou un échantillon de couleur (`Card` avec `backgroundColor`)
-    
+- `TailwindColorPicker`: composant d’input utilisé par défaut pour le type `tailwindColor`.
+- `TailwindColorInput` et `HexToTailwindColorPicker` restent disponibles mais sont supplantés par `TailwindColorPicker`.
 
-## 📦 Contenu du plugin
+## 📦 Notes
 
--   `tailwindColorPlugin.ts` : enregistre le type personnalisé
-    
--   `TailwindColorInput.tsx` : composant d'entrée avec ChromePicker
-    
--   `utils/findClosestTailwindClass.ts` : utilitaire pour convertir HEX → classe Tailwind
-    
+- Les HEX → classes utilisent une palette complète Tailwind v3 et une distance rapide RGB. Vous pouvez adapter l’algorithme si besoin.
+- Les couleurs doublonnées (ex. `neutral-50` et `zinc-50`) sont dédupliquées côté mapping HEX.
 
-## ✅ Exemple de valeur enregistrée
+---
 
-```json
-{
-  "_type": "myDoc",
-  "backgroundColor": "bg-green-400"
-}
-
-```
-
-## 🛠 Dépendances
-
--   [`react-color`](https://github.com/casesandberg/react-color)
-    
--   [`@sanity/ui`](https://www.sanity.io/ui)
-    
-
-```
-
-```
+MIT © Alexandre MAGNIER — Exaland Concept
