@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-tailwind-color-picker",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Color Picker Sanity v3 avec conversion en classe Tailwind CSS",
   "main": "src/index.ts",
   "keywords": [
@@ -15,9 +15,9 @@
     "react-color": "^2.19.3"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "sanity": "^4.22.0"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sanity": "^6.11.0"
   },
   "devDependencies": {
     "@types/react-color": "^3.0.13"
