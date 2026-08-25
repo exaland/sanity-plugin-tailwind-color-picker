@@ -15,9 +15,9 @@
     "react-color": "^2.19.3"
   },
   "peerDependencies": {
-    "react": "^19.2.2",
-    "react-dom": "^19.2.2",
-    "sanity": "^5.14.1"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "sanity": "^6.11.0"
   },
   "devDependencies": {
     "@types/react-color": "^3.0.13"
