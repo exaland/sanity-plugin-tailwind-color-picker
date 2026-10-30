@@ -54,6 +54,40 @@ export default defineField({
 })
 ```
 
+### Dégradés
+
+Le type `tailwindGradient` (type `string`) permet de choisir une couleur de départ, d’arrivée et, en option, une couleur intermédiaire, avec un aperçu du dégradé. Il stocke les classes Tailwind, par ex. `from-amber-400 to-yellow-500` ou `from-amber-400 via-orange-500 to-yellow-500`.
+
+```ts
+import {defineField} from 'sanity'
+
+export default defineField({
+  name: 'gradient',
+  title: 'Dégradé',
+  type: 'tailwindGradient',
+})
+```
+
+Côté front, il suffit de combiner la valeur avec une direction :
+
+```tsx
+<div className={`bg-gradient-to-r ${doc.gradient}`} />
+```
+
+La fonction `generateTailwindGradient` est aussi exportée pour générer ces classes par code. Chaque couleur peut être un hex, une classe (`bg-amber-400`) ou un nom (`amber-400`) ; les hex sont convertis vers la classe Tailwind la plus proche.
+
+```ts
+import {generateTailwindGradient} from 'sanity-plugin-tailwind-color-picker'
+
+generateTailwindGradient({from: 'amber-400', to: 'yellow-500'})
+// 'from-amber-400 to-yellow-500'
+
+generateTailwindGradient({from: '#fbbf24', via: 'bg-orange-500', to: '#eab308'})
+// 'from-amber-400 via-orange-500 to-yellow-500'
+```
+
+> Tailwind ne génère que les classes présentes en toutes lettres dans le code source. Les valeurs venant de Sanity doivent être ajoutées à la `safelist` de votre config Tailwind (ex. motif `/^(from|via|to)-/`).
+
 ## ✨ Fonctionnalités
 
 - Suggestions triées par validité et distance couleur.
